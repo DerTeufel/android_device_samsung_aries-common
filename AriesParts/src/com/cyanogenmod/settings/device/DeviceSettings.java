@@ -1,16 +1,19 @@
 package com.cyanogenmod.settings.device;
 
+import android.app.ActivityManagerNative;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.TvOut;
 import android.os.Bundle;
+import android.os.UserHandle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
+import android.preference.PreferenceScreen;
 
 public class DeviceSettings extends PreferenceActivity  {
 
@@ -27,6 +30,7 @@ public class DeviceSettings extends PreferenceActivity  {
     public static final String KEY_CARDOCK_AUDIO = "cardock_audio";
     public static final String KEY_DESKDOCK_AUDIO = "deskdock_audio";
     public static final String KEY_DOCK_AUDIO_CATEGORY = "category_dock_audio";
+    public static final String KEY_USE_DOCK_AUDIO = "dock_audio";
     public static final String KEY_VIBRATION = "vibration";
 
     private ColorTuningPreference mColorTuning;
@@ -39,6 +43,7 @@ public class DeviceSettings extends PreferenceActivity  {
     private VolumeBoostPreference mVolumeBoost;
     private CheckBoxPreference mCarDockAudio;
     private CheckBoxPreference mDeskDockAudio;
+    private CheckBoxPreference mDockAudio;
     private VibrationPreference mVibration;
 
     private BroadcastReceiver mHeadsetReceiver = new BroadcastReceiver() {
@@ -97,6 +102,22 @@ public class DeviceSettings extends PreferenceActivity  {
 
         mVibration = (VibrationPreference) findPreference(KEY_VIBRATION);
         mVibration.setEnabled(VibrationPreference.isSupported());
+
+	mDockAudio = (CheckBoxPreference) findPreference(KEY_USE_DOCK_AUDIO);
+	mDockAudio.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+        	String boxValue;
+
+            	boxValue = (mDockAudio.isChecked() ? "1" : "0");
+            	Intent i = new Intent("com.cyanogenmod.settings.SamsungDock");
+            	i.putExtra("data", boxValue);
+            	ActivityManagerNative.broadcastStickyIntent(i, null, UserHandle.USER_ALL);
+
+        	return true;
+                }
+
+            });
 
         mTvOut = new TvOut();
         mTvOutEnable = (CheckBoxPreference) findPreference(KEY_TVOUT_ENABLE);

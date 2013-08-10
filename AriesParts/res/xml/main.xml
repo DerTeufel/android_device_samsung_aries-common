@@ -90,6 +90,18 @@
                 android:persistent="true" />
         </PreferenceCategory>
 
+	<PreferenceCategory
+    	android:title="Dock Audio out">
+            <!-- Force Dock Audio Out -->
+            <CheckBoxPreference
+	        android:key="dock_audio"
+	        android:title="Force Audio-out through Dock"
+                android:summaryOn="Redirecting Sound through Dock"
+                android:summaryOff="Using Device Speaker for Audio out"
+                android:persistent="true" />
+	</PreferenceCategory>
+
+
         <PreferenceCategory
             android:title="@string/category_vibration_title">
             <!-- Vibration -->
