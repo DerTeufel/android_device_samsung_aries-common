@@ -3,6 +3,8 @@ package com.cyanogenmod.settings.device;
 import android.app.ActivityManagerNative;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.TvOut;
@@ -14,6 +16,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
+import android.preference.PreferenceManager;
 
 public class DeviceSettings extends PreferenceActivity  {
 
@@ -32,6 +35,7 @@ public class DeviceSettings extends PreferenceActivity  {
     public static final String KEY_DOCK_AUDIO_CATEGORY = "category_dock_audio";
     public static final String KEY_USE_DOCK_AUDIO = "dock_audio";
     public static final String KEY_VIBRATION = "vibration";
+    public static final String KEY_APPLY = "apply";
 
     private ColorTuningPreference mColorTuning;
     private ListPreference mMdnie;
@@ -45,6 +49,9 @@ public class DeviceSettings extends PreferenceActivity  {
     private CheckBoxPreference mDeskDockAudio;
     private CheckBoxPreference mDockAudio;
     private VibrationPreference mVibration;
+    private CheckBoxPreference mApply;
+
+    private static SharedPreferences preferences;
 
     private BroadcastReceiver mHeadsetReceiver = new BroadcastReceiver() {
 
@@ -60,6 +67,8 @@ public class DeviceSettings extends PreferenceActivity  {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.main);
+
+	preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         mColorTuning = (ColorTuningPreference) findPreference(KEY_COLOR_TUNING);
         mColorTuning.setEnabled(ColorTuningPreference.isSupported());
@@ -160,7 +169,10 @@ public class DeviceSettings extends PreferenceActivity  {
             category.removePreference(mTvOutSystem);
             getPreferenceScreen().removePreference(category);
         }
-    }
+
+        mApply = (CheckBoxPreference) findPreference(KEY_APPLY);
+        mApply.setOnPreferenceChangeListener(new Apply());
+   }
 
     @Override
     protected void onResume() {
@@ -172,6 +184,25 @@ public class DeviceSettings extends PreferenceActivity  {
     protected void onPause() {
         super.onPause();
         unregisterReceiver(mHeadsetReceiver);
+    }
+
+
+    public static void setPreferenceString(String key, String value) {
+	Editor ed = preferences.edit();
+	ed.putString(key, value);
+	ed.commit();
+    }
+
+    public static void setPreferenceInteger(String key, int value) {
+	Editor ed = preferences.edit();
+	ed.putInt(key, value);
+	ed.commit();
+    }
+
+    public static void setPreferenceBoolean(String key, boolean value) {
+	Editor ed = preferences.edit();
+	ed.putBoolean(key, value);
+	ed.commit();
     }
 
     private void updateTvOutEnable(boolean connected) {
